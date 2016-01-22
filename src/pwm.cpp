@@ -49,11 +49,13 @@ PWM::PWM(std::string directory_path, int duty, int period, bool polarity, bool e
 
 void PWM::setPeriod(int period)
 {
-	FILE* f=fopen("/sys/class/pwm/" + this->directory + "/period", "w");
+	std::string filepath = "/sys/class/pwm/" + this->directory + "/period";
+	std::string errormsg = "\nImpossible d'ouvrir le fichier " + filepath + "\n";
+	FILE* f=fopen(filepath.c_str(), "w");
 
 	if(f==NULL)
 	{
-		printf("\nImpossible d'ouvrir le fichier " + "/sys/class/pwm/" + this->directory + "/period\n");
+		//printf(errormsg.c_str());
 	}
 	else
 	{
@@ -64,11 +66,13 @@ void PWM::setPeriod(int period)
 
 void PWM::setDuty(int duty)
 {
-	FILE* f=fopen("/sys/class/pwm/" + this->directory + "/duty_cycle", "w");
+	std::string filepath = "/sys/class/pwm/" + this->directory + "/duty_cycle";
+	std::string errormsg = "\nImpossible d'ouvrir le fichier " + filepath + "\n";
+	FILE* f=fopen(filepath.c_str(), "w");
 
 	if(f==NULL)
 	{
-		 printf("\nImpossible d'ouvrir le fichier " + "/sys/class/pwm/" + this->directory + "/duty_cycle\n");
+		//printf(errormsg.c_str());
 	}
 	else
 	{
@@ -79,11 +83,13 @@ void PWM::setDuty(int duty)
 
 void PWM::setPolarity(bool polarity)
 {
-	FILE* f=fopen("/sys/class/pwm/" + this->directory + "/polarity", "w");
+	std::string filepath = "/sys/class/pwm/" + this->directory + "/polarity";
+	std::string errormsg = "\nImpossible d'ouvrir le fichier " + filepath + "\n";
+	FILE* f=fopen(filepath.c_str(), "w");
 
 	if(f==NULL)
 	{
-		 printf("\nImpossible d'ouvrir le fichier " + "/sys/class/pwm/" + this->directory + "/polarity\n");
+		//printf(errormsg.c_str());
 	}
 	else
 	{
@@ -94,11 +100,13 @@ void PWM::setPolarity(bool polarity)
 
 void PWM::setRunningState(bool enable)
 {
-	FILE* f=fopen("/sys/class/pwm/" + this->directory + "/enable", "w");
+	std::string filepath = "/sys/class/pwm/" + this->directory + "/enable";
+	std::string errormsg = "\nImpossible d'ouvrir le fichier " + filepath + "\n";
+	FILE* f=fopen(filepath.c_str(), "w");
 
 	if(f==NULL)
 	{
-		 printf("\nImpossible d'ouvrir le fichier " + "/sys/class/pwm/" + this->directory + "/enable\n");
+		//printf(errormsg.c_str());
 	}
 	else
 	{
@@ -110,16 +118,18 @@ void PWM::setRunningState(bool enable)
 int PWM::getPeriod(void)
 {
 	int period=0;
-	FILE* f=fopen("/sys/class/pwm/" + this->directory + "/period", "r");
+	std::string filepath = "/sys/class/pwm/" + this->directory + "/period";
+	std::string errormsg = "\nImpossible d'ouvrir le fichier " + filepath + "\n";
+	FILE* f=fopen(filepath.c_str(), "r");
 
 	if(f==NULL)
 	{
-		printf("\nImpossible d'ouvrir le fichier " + "/sys/class/pwm/" + this->directory + "/period\n");
+		//printf(errormsg.c_str());
 		return -1;
 	}
 	else
 	{
-		fscanf(f, "%d", period);
+		fscanf(f, "%d", &period);
 		fclose(f);
 		return period;
 	}
@@ -128,16 +138,18 @@ int PWM::getPeriod(void)
 int PWM::getDuty(void)
 {
 	int duty=0;
-	FILE* f=fopen("/sys/class/pwm/" + this->directory + "/duty_cycle", "r");
+	std::string filepath = "/sys/class/pwm/" + this->directory + "/duty";
+	std::string errormsg = "\nImpossible d'ouvrir le fichier " + filepath + "\n";
+	FILE* f=fopen(filepath.c_str(), "r");
 
 	if(f==NULL)
 	{
-		printf("\nImpossible d'ouvrir le fichier " + "/sys/class/pwm/" + this->directory + "/duty_cycle\n");
+		//printf(errormsg.c_str());
 		return -1;
 	}
 	else
 	{
-		fscanf(f, "%d", duty);
+		fscanf(f, "%d", &duty);
 		fclose(f);
 		return duty;
 	}
@@ -146,35 +158,39 @@ int PWM::getDuty(void)
 bool PWM::isPolarityStraight(void)
 {
 	int polarity=0;
-	FILE* f=fopen("/sys/class/pwm/" + this->directory + "/polarity", "r");
+	std::string filepath = "/sys/class/pwm/" + this->directory + "/polarity";
+	std::string errormsg = "\nImpossible d'ouvrir le fichier " + filepath + "\n";
+	FILE* f=fopen(filepath.c_str(), "r");
 
 	if(f==NULL)
 	{
-		printf("\nImpossible d'ouvrir le fichier " + "/sys/class/pwm/" + this->directory + "/polarity\n");
+		//printf(errormsg.c_str());
 		return -1;
 	}
 	else
 	{
-		fscanf(f, "%d", polarity);
+		fscanf(f, "%d", &polarity);
 		fclose(f);
-		return polarity?true:false;
+		return (polarity==1)?true:false;
 	}
 }
 
 bool PWM::isEnabled(void)
 {
 	int enabled=0;
-	FILE* f=fopen("/sys/class/pwm/" + this->directory + "/enable", "r");
+	std::string filepath = "/sys/class/pwm/" + this->directory + "/enable";
+	std::string errormsg = "\nImpossible d'ouvrir le fichier " + filepath + "\n";
+	FILE* f=fopen(filepath.c_str(), "r");
 
 	if(f==NULL)
 	{
-		printf("\nImpossible d'ouvrir le fichier " + "/sys/class/pwm/" + this->directory + "/enable\n");
+		//printf(errormsg.c_str());
 		return -1;
 	}
 	else
 	{
-		fscanf(f, "%d", enabled);
+		fscanf(f, "%d", &enabled);
 		fclose(f);
-		return enabled?true:false;
+		return (enabled==1)?true:false;
 	}
 }
