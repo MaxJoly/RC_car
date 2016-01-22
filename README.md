@@ -1,4 +1,4 @@
 # RC_car
 Projet M2 ISEN
 
-rÉPERTOIRE SOURCE DU CATKIN_WS
+Répertoire source du catkin_ws
