@@ -7,13 +7,13 @@ class PWM
 private:
 	std::string directory;
 
+public:
 	PWM(std::string directory_path);
 	PWM(std::string directory_path, int duty);
 	PWM(std::string directory_path, int duty, int period);
 	PWM(std::string directory_path, int duty, int period, bool polarity);
 	PWM(std::string directory_path, int duty, int period, bool polarity, bool enable);
 
-public:
 	int getPeriod();
 	int getDuty();
 	bool isPolarityStraight();
