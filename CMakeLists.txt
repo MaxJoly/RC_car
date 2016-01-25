@@ -13,13 +13,14 @@ find_package(catkin REQUIRED COMPONENTS
 ## Generate messages in the 'msg' folder
  add_message_files(
    FILES
-   Num.msg
+   Command.msg
+   RSRMsg.msg
  )
 
 ## Generate services in the 'srv' folder
 add_service_files(
    FILES
-   AddTwoInts.srv
+  # AddTwoInts.srv
  )
 
 ## Generate actions in the 'action' folder
@@ -51,13 +52,16 @@ include_directories(
 
 include_directories(include ${catkin_INCLUDE_DIRS})
 
-add_executable(talker src/talker.cpp)
-target_link_libraries(talker ${catkin_LIBRARIES})
-add_dependencies(talker beginner_tutorials_generate_messages_cpp)
-
-add_executable(listener src/listener.cpp)
-target_link_libraries(listener ${catkin_LIBRARIES})
-add_dependencies(listener beginner_tutorials_generate_messages_cpp)
+add_library(pwm src/pwm.cpp)
 
 
+add_executable(iDCmotor src/DCmotor.cpp)
+target_link_libraries(iDCmotor ${catkin_LIBRARIES})
+target_link_libraries(iDCmotor pwm)
+add_dependencies(iDCmotor rc_car_gen_cpp)
+
+add_executable(iServomotor src/servomotor.cpp)
+target_link_libraries(iServomotor ${catkin_LIBRARIES})
+target_link_libraries(iServomotor pwm)
+add_dependencies(iServomotor rc_car_gen_cpp)
 
