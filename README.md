@@ -11,3 +11,5 @@ Pour le GPS :
 - (optionnel) passage du GPS en NMEA : 						gpsctl -n /dev/tty<monUSB>
 - (optionnel) modification du port GPS : 					gpsd -S <port_des> /dev/tty<monUSB>
 
+Pour l'initialisation des moteurs :
+- publier les paramètres du servomoteur et du moteur DC dans le topic tCalib après avoir lancé les nodes iServomotor et iDCmotor

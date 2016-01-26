@@ -16,6 +16,7 @@ find_package(catkin REQUIRED COMPONENTS
    Num.msg
    Command.msg
    RSRMsg.msg
+   CalibMsg.msg
  )
 
 ## Generate services in the 'srv' folder

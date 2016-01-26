@@ -1,21 +1,38 @@
 #include "ros/ros.h"
 #include "std_msgs/String.h"
 #include "defines.h"
+#include "rc_car/CalibMsg.h"
 #include "rc_car/Command.h"
 #include "rc_car/RSRMsg.h"
 #include "pwm.h"
 
 PWM pwmServomotor(PWM_SERVOMOTOR_DIR, 0, PWM_SERVOMOTOR_PERIOD_NS, true, false);
+int servo_period_angle_max = 0;
+int servo_period_angle_0 = 0;
+int servo_period_angle_min = 0;
+int servo_angle_max = 0;
+int servo_angle_min = 0;
+
+void refresh_param_Servomotor(const rc_car::CalibMsgConstPtr& calib)
+{
+  ROS_INFO("iServomotor received from tCalib:\nservo_period_angle_max: %d\tservo_period_angle_0: %d\tservo_period_angle_min: %d\tservo_angle_max: %d\tservo_angle_min: %d\n", calib->servo_period_angle_max, calib->servo_period_angle_0, calib->servo_period_angle_min, calib->servo_angle_max, calib->servo_angle_min);
+
+  servo_period_angle_max = calib->servo_period_angle_max;
+  servo_period_angle_0 = calib->servo_period_angle_0;
+  servo_period_angle_min = calib->servo_period_angle_min;
+  servo_angle_max = calib->servo_angle_max;
+  servo_angle_min = calib->servo_angle_min;
+}
 
 void refreshPWM_Servomotor(const rc_car::CommandConstPtr& cmd)
 {
-  float dirCoef = 0.0;
+  float dutyPeriod = 0.0;
 
   ROS_INFO("iServomotor received from tCommand: %f", cmd->dir);
 
   // Mise à jour du temps haut (en us) en fonction de speed
-  dirCoef = (DIR_COEF_MAX - DIR_COEF_MIN)/(SERVOMOTOR_ANGLE_MAX - SERVOMOTOR_ANGLE_MIN)*(cmd->dir) + 0.5*(DIR_COEF_MAX + DIR_COEF_MIN);
-  pwmServomotor.setDuty(round(PWM_SERVOMOTOR_PERIOD_NS*dirCoef));
+  dutyPeriod = (servo_period_angle_max - servo_period_angle_min)/(servo_angle_max - servo_angle_min)*(cmd->dir) + servo_period_angle_0;
+  pwmServomotor.setDuty(round(dutyPeriod));
 }
 
 void RSR_process(const rc_car::RSRMsgConstPtr& RSR)
@@ -26,10 +43,13 @@ void RSR_process(const rc_car::RSRMsgConstPtr& RSR)
   {
     pwmServomotor.setRunningState(false);
   }
+  else
+  {
+    pwmServomotor.setRunningState(true);
+  }
 
   if(RSR->reset)
   {
-    pwmServomotor.setRunningState(false);
     pwmServomotor.setDuty(0);
   }
 }
@@ -44,6 +64,7 @@ int main(int argc, char **argv)
 
   ros::Subscriber tRSR_sub = n.subscribe("tRSR", 1000, RSR_process);
   ros::Subscriber tCommand_sub = n.subscribe("tCommand", 1000, refreshPWM_Servomotor);
+  ros::Subscriber tCalib_sub = n.subscribe("tCalib", 1000, refresh_param_Servomotor);
   //ros::Publisher tError_pub = n.advertise<Error>("tError", 1000);
 
   ros::spin();

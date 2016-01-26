@@ -1,0 +1,11 @@
+int32 DCmotor_period_speed_max
+int32 DCmotor_period_speed_0
+int32 DCmotor_period_speed_min
+int32 DCmotor_speed_max
+int32 DCmotor_speed_min
+
+int32 servo_period_angle_max
+int32 servo_period_angle_0
+int32 servo_period_angle_min
+int32 servo_angle_max
+int32 servo_angle_min

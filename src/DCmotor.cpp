@@ -1,21 +1,38 @@
 #include "ros/ros.h"
 #include "std_msgs/String.h"
 #include "defines.h"
+#include "rc_car/CalibMsg.h"
 #include "rc_car/Command.h"
 #include "rc_car/RSRMsg.h"
 #include "pwm.h"
 
 PWM pwmDCmotor(PWM_DC_MOTOR_DIR, 0, PWM_DC_MOTOR_PERIOD_NS, true, false);
+int DCmotor_period_speed_max = 0.0;
+int DCmotor_period_speed_0 = 0.0;
+int DCmotor_period_speed_min = 0.0;
+int DCmotor_speed_max = 0.0;
+int DCmotor_speed_min = 0.0;
+
+void refresh_param_DCmotor(const rc_car::CalibMsgConstPtr& calib)
+{
+  ROS_INFO("iDCmotor received from tCalib:\nDCmotor_period_speed_max: %d\tDCmotor_period_speed_0: %d\tDCmotor_period_speed_min: %d\tDCmotor_speed_max: %d\tDCmotor_speed_min: %d\n", calib->DCmotor_period_speed_max, calib->DCmotor_period_speed_0, calib->DCmotor_period_speed_min, calib->DCmotor_speed_max, calib->DCmotor_speed_min);
+
+  DCmotor_period_speed_max = calib->DCmotor_period_speed_max;
+  DCmotor_period_speed_0 = calib->DCmotor_period_speed_0;
+  DCmotor_period_speed_min = calib->DCmotor_period_speed_min;
+  DCmotor_speed_max = calib->DCmotor_speed_max;
+  DCmotor_speed_min = calib->DCmotor_speed_min;
+}
 
 void refreshPWM_DCmotor(const rc_car::CommandConstPtr& cmd)
 {
-  float speedCoef = 0.0;
+  float dutyPeriod = 0.0;
 
   ROS_INFO("iDCmotor received from tCommand: %f", cmd->speed);
 
   // Mise à jour du temps haut (en us) en fonction de speed
-  speedCoef = (SPEED_COEF_MAX - SPEED_COEF_MIN)/(DC_MOTOR_SPEED_MAX - DC_MOTOR_SPEED_MIN)*(cmd->speed) + 0.5*(SPEED_COEF_MAX + SPEED_COEF_MIN);
-  pwmDCmotor.setDuty(round(PWM_DC_MOTOR_PERIOD_NS*speedCoef));
+  dutyPeriod = (DCmotor_period_speed_max - DCmotor_period_speed_min)/(DCmotor_speed_max - DCmotor_speed_min)*(cmd->speed) + DCmotor_period_speed_0;
+  pwmDCmotor.setDuty(round(dutyPeriod));
 }
 
 void RSR_process(const rc_car::RSRMsgConstPtr& RSR)
@@ -26,10 +43,13 @@ void RSR_process(const rc_car::RSRMsgConstPtr& RSR)
   {
     pwmDCmotor.setRunningState(false);
   }
+  else
+  {
+    pwmDCmotor.setRunningState(true);
+  }
 
   if(RSR->reset)
   {
-    pwmDCmotor.setRunningState(false);
     pwmDCmotor.setDuty(0);
   }
 }
@@ -44,6 +64,7 @@ int main(int argc, char **argv)
 
   ros::Subscriber tRSR_sub = n.subscribe("tRSR", 1000, RSR_process);
   ros::Subscriber tCommand_sub = n.subscribe("tCommand", 1000, refreshPWM_DCmotor);
+  ros::Subscriber tCalib_sub = n.subscribe("tCalib", 1000, refresh_param_DCmotor);
   //ros::Publisher tError_pub = n.advertise<Error>("tError", 1000);
 
   ros::spin();
