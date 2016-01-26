@@ -49,14 +49,12 @@ catkin_package(
 
 include_directories(
   ${catkin_INCLUDE_DIRS}
+  include
 )
 
 add_library(pwm src/pwm.cpp)
 
-include_directories(include ${catkin_INCLUDE_DIRS})
-
-add_library(pwm src/pwm.cpp)
-
+#include_directories(include ${catkin_INCLUDE_DIRS})
 
 add_executable(iDCmotor src/DCmotor.cpp)
 target_link_libraries(iDCmotor ${catkin_LIBRARIES})
@@ -68,13 +66,3 @@ target_link_libraries(iServomotor ${catkin_LIBRARIES})
 target_link_libraries(iServomotor pwm)
 add_dependencies(iServomotor rc_car_gen_cpp)
 
-
-add_executable(iDCmotor src/DCmotor.cpp)
-target_link_libraries(iDCmotor ${catkin_LIBRARIES})
-target_link_libraries(iDCmotor pwm)
-add_dependencies(iDCmotor rc_car_gen_cpp)
-
-add_executable(iServomotor src/servomotor.cpp)
-target_link_libraries(iServomotor ${catkin_LIBRARIES})
-target_link_libraries(iServomotor pwm)
-add_dependencies(iServomotor rc_car_gen_cpp)
