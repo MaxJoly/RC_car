@@ -4,7 +4,7 @@
 #include "rc_car/CalibMsg.h"
 #include "rc_car/Command.h"
 #include "rc_car/RSRMsg.h"
-#include "pwm.h"
+#include "rc_car/pwm.h"
 
 PWM pwmServomotor(PWM_SERVOMOTOR_DIR, 0, PWM_SERVOMOTOR_PERIOD_NS, true, false);
 int servo_period_angle_max = 0;

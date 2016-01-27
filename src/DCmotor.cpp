@@ -4,7 +4,7 @@
 #include "rc_car/CalibMsg.h"
 #include "rc_car/Command.h"
 #include "rc_car/RSRMsg.h"
-#include "pwm.h"
+#include "rc_car/pwm.h"
 
 PWM pwmDCmotor(PWM_DC_MOTOR_DIR, 0, PWM_DC_MOTOR_PERIOD_NS, true, false);
 int DCmotor_period_speed_max = 0;
