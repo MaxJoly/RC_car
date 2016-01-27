@@ -47,7 +47,7 @@ PWM::PWM(std::string directory_path, int duty, int period, bool polarity, bool e
 	this->setRunningState(enable);
 }
 
-void PWM::setPeriod(int period)
+bool PWM::setPeriod(int period)
 {
 	std::string filepath = "/sys/class/pwm/" + this->directory + "/period";
 	std::string errormsg = "\nImpossible d'ouvrir le fichier " + filepath + "\n";
@@ -56,15 +56,17 @@ void PWM::setPeriod(int period)
 	if(f==NULL)
 	{
 		//printf(errormsg.c_str());
+		return false;
 	}
 	else
 	{
 		fprintf(f, "%d", period);
 		fclose(f);
+		return true;
 	}
 }
 
-void PWM::setDuty(int duty)
+bool PWM::setDuty(int duty)
 {
 	std::string filepath = "/sys/class/pwm/" + this->directory + "/duty_cycle";
 	std::string errormsg = "\nImpossible d'ouvrir le fichier " + filepath + "\n";
@@ -73,15 +75,17 @@ void PWM::setDuty(int duty)
 	if(f==NULL)
 	{
 		//printf(errormsg.c_str());
+		return false;
 	}
 	else
 	{
 		fprintf(f, "%d", duty);
 		fclose(f);
+		return true;
 	}
 }
 
-void PWM::setPolarity(bool polarity)
+bool PWM::setPolarity(bool polarity)
 {
 	std::string filepath = "/sys/class/pwm/" + this->directory + "/polarity";
 	std::string errormsg = "\nImpossible d'ouvrir le fichier " + filepath + "\n";
@@ -90,15 +94,17 @@ void PWM::setPolarity(bool polarity)
 	if(f==NULL)
 	{
 		//printf(errormsg.c_str());
+		return false;
 	}
 	else
 	{
 		fprintf(f, "%d", polarity?1:0);
 		fclose(f);
+		return true;
 	}
 }
 
-void PWM::setRunningState(bool enable)
+bool PWM::setRunningState(bool enable)
 {
 	std::string filepath = "/sys/class/pwm/" + this->directory + "/enable";
 	std::string errormsg = "\nImpossible d'ouvrir le fichier " + filepath + "\n";
@@ -107,11 +113,13 @@ void PWM::setRunningState(bool enable)
 	if(f==NULL)
 	{
 		//printf(errormsg.c_str());
+		return false;
 	}
 	else
 	{
 		fprintf(f, "%d", enable?1:0);
 		fclose(f);
+		return true;
 	}
 }
 

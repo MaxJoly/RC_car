@@ -20,10 +20,10 @@ public:
 	bool isEnabled();
 	//Stream getInfo();
 
-	void setPeriod(int period);
-	void setDuty(int duty);
-	void setPolarity(bool polarity);
-	void setRunningState(bool enable);
+	bool setPeriod(int period);
+	bool setDuty(int duty);
+	bool setPolarity(bool polarity);
+	bool setRunningState(bool enable);
 };
 #endif
 
