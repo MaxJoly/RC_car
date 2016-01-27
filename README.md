@@ -7,9 +7,10 @@ Pour le GPS :
 - installation des paquets :								sudo apt-get install gpsd gpsd-clients python-gps libgps-dev
 - démarrage du node GPS :									rosrun gpsd_client gpsd_client _host:=localhost _port:=2947
 - données publiées dans les topics /fix et /extended_fix
-- (optionnel) affichage direct des données issues du GPS :	sudo gpscat -s 4800 /dev/tty<monUSB>
-- (optionnel) passage du GPS en NMEA : 						gpsctl -n /dev/tty<monUSB>
-- (optionnel) modification du port GPS : 					gpsd -S <port_des> /dev/tty<monUSB>
+- (optionnel) affichage direct des données issues du GPS :	sudo gpscat -s 4800 /dev/tty[monUSB]
+- (optionnel) passage du GPS en NMEA : 						gpsctl -n /dev/tty[monUSB]
+- (optionnel) modification du port GPS : 					gpsd -S [port_des] /dev/tty[monUSB]
 
 Pour l'initialisation des moteurs :
-- publier les paramètres du servomoteur et du moteur DC dans le topic tCalib après avoir lancé les nodes iServomotor et iDCmotor
+- (optionnel) vérification des paramètres : rosparam get /[monParametre]
+- modification d'un paramètre : rosparam set /[monParametre]
