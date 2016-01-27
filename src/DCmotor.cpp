@@ -34,7 +34,10 @@ void refreshPWM_DCmotor(const rc_car::CommandConstPtr& cmd)
 
   // Mise à jour du temps haut (en ns) en fonction de speed
   dutyPeriod = (DCmotor_period_speed_max - DCmotor_period_speed_min)/(DCmotor_speed_max - DCmotor_speed_min)*(cmd->speed) + DCmotor_period_speed_0;
-  pwmDCmotor.setDuty(round(dutyPeriod));
+  if(!(pwmDCmotor.setDuty(round(dutyPeriod))))
+  {
+    ROS_INFO("iDCmotor unable to set the duty period");
+  }
 }
 
 void RSR_process(const rc_car::RSRMsgConstPtr& RSR)
@@ -58,7 +61,6 @@ void RSR_process(const rc_car::RSRMsgConstPtr& RSR)
 
 int main(int argc, char **argv)
 {
-  // TODO : vérifier que les commandes ont répondu et envoyer un message à tError sinon
   std::string s;
   
   ros::init(argc, argv, "iDCmotor");

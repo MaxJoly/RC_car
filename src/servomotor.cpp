@@ -34,7 +34,10 @@ void refreshPWM_Servomotor(const rc_car::CommandConstPtr& cmd)
 
   // Mise à jour du temps haut (en ns) en fonction de speed
   dutyPeriod = (servo_period_angle_max - servo_period_angle_min)/(servo_angle_max - servo_angle_min)*(cmd->dir) + servo_period_angle_0;
-  pwmServomotor.setDuty(round(dutyPeriod));
+  if(!(pwmServomotor.setDuty(round(dutyPeriod))))
+  {
+    ROS_INFO("iServomotor unable to set the duty period");
+  }
 }
 
 void RSR_process(const rc_car::RSRMsgConstPtr& RSR)
