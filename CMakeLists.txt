@@ -48,12 +48,11 @@ catkin_package(
 
 include_directories(
   ${catkin_INCLUDE_DIRS}
-  include
 )
 
 add_library(pwm src/pwm.cpp)
 
-#include_directories(include ${catkin_INCLUDE_DIRS})
+include_directories(include ${catkin_INCLUDE_DIRS})
 
 add_executable(iDCmotor src/DCmotor.cpp)
 target_link_libraries(iDCmotor ${catkin_LIBRARIES})
