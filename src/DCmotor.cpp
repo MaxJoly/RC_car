@@ -1,30 +1,16 @@
 #include "ros/ros.h"
 #include "std_msgs/String.h"
 #include "rc_car/defines.h"
-#include "rc_car/CalibMsg.h"
 #include "rc_car/Command.h"
 #include "rc_car/RSRMsg.h"
 #include "rc_car/pwm.h"
 
-PWM pwmDCmotor(PWM_DC_MOTOR_DIR, 0, PWM_DC_MOTOR_PERIOD_NS, true, false);
+PWM pwmDCmotor(PWM_DC_MOTOR_DIR);
 int DCmotor_period_speed_max = 0;
 int DCmotor_period_speed_0 = 0;
 int DCmotor_period_speed_min = 0;
 int DCmotor_speed_max = 0;
 int DCmotor_speed_min = 0;
-
-/*
-void refresh_param_DCmotor(const rc_car::CalibMsgConstPtr& calib)
-{
-  ROS_INFO("iDCmotor received from tCalib:\nDCmotor_period_speed_max: %d\tDCmotor_period_speed_0: %d\tDCmotor_period_speed_min: %d\tDCmotor_speed_max: %d\tDCmotor_speed_min: %d\n", calib->DCmotor_period_speed_max, calib->DCmotor_period_speed_0, calib->DCmotor_period_speed_min, calib->DCmotor_speed_max, calib->DCmotor_speed_min);
-
-  DCmotor_period_speed_max = calib->DCmotor_period_speed_max;
-  DCmotor_period_speed_0 = calib->DCmotor_period_speed_0;
-  DCmotor_period_speed_min = calib->DCmotor_period_speed_min;
-  DCmotor_speed_max = calib->DCmotor_speed_max;
-  DCmotor_speed_min = calib->DCmotor_speed_min;
-}
-*/
 
 void refreshPWM_DCmotor(const rc_car::CommandConstPtr& cmd)
 {
@@ -34,9 +20,32 @@ void refreshPWM_DCmotor(const rc_car::CommandConstPtr& cmd)
 
   // Mise à jour du temps haut (en ns) en fonction de speed
   dutyPeriod = (DCmotor_period_speed_max - DCmotor_period_speed_min)/(DCmotor_speed_max - DCmotor_speed_min)*(cmd->speed) + DCmotor_period_speed_0;
+
+  if(dutyPeriod>2000000) // Supérieur à 2 ms
+  {
+    dutyPeriod = 2000000;
+    ROS_WARN("iDCmotor get a duty period > 2 ms, set to 2 ms\n");
+  }
+  else if(dutyPeriod<1000000) // Inférieur à 1 ms
+  {
+    dutyPeriod = 1000000;
+    ROS_WARN("iDCmotor get a duty period < 1 ms, set to 1 ms\n");
+  }
+
+  if(dutyPeriod>DCmotor_period_speed_max)
+  {
+    dutyPeriod = DCmotor_period_speed_max;
+    ROS_WARN("iDCmotor get a duty period > DCmotor_period_speed_max, set to DCmotor_period_speed_max\n");
+  }
+  else if (dutyPeriod<DCmotor_period_speed_min)
+  {
+    dutyPeriod = DCmotor_period_speed_min;
+    ROS_WARN("iDCmotor get a duty period < DCmotor_period_speed_min, set to DCmotor_period_speed_min\n");
+  }
+
   if(!(pwmDCmotor.setDuty(round(dutyPeriod))))
   {
-    ROS_INFO("iDCmotor unable to set the duty period");
+    ROS_ERROR("iDCmotor unable to set the duty period");
   }
 }
 
@@ -46,76 +55,77 @@ void RSR_process(const rc_car::RSRMsgConstPtr& RSR)
 
   if(!(RSR->run))
   {
-    pwmDCmotor.setRunningState(false);
+    if(!(pwmDCmotor.setRunningState(false)))
+    {
+      ROS_ERROR("iDCmotor unable to disable the DCmotor");
+    }
   }
   else
   {
-    pwmDCmotor.setRunningState(true);
+    if(!(pwmDCmotor.setRunningState(true)))
+    {
+      ROS_ERROR("iDCmotor unable to enable the DCmotor");
+    }
   }
 
   if(RSR->reset)
   {
-    pwmDCmotor.setDuty(0);
+    if(!(pwmDCmotor.setDuty(0)))
+    {
+      ROS_ERROR("iDCmotor unable to reset the duty period");
+    }
   }
 }
 
 int main(int argc, char **argv)
 {
-  std::string s;
-  
   ros::init(argc, argv, "iDCmotor");
 
   ros::NodeHandle n;
 
   ros::Subscriber tRSR_sub = n.subscribe("tRSR", 1000, RSR_process);
   ros::Subscriber tCommand_sub = n.subscribe("tCommand", 1000, refreshPWM_DCmotor);
-  //ros::Subscriber tCalib_sub = n.subscribe("tCalib", 1000, refresh_param_DCmotor);
   //ros::Publisher tError_pub = n.advertise<Error>("tError", 1000);
 
-  if (n.getParam("DCmotor_period_speed_max", s))
+  if (n.getParam("/DCmotor_period_speed_max", DCmotor_period_speed_max))
   {
-    ROS_INFO("iDCmotor got param: %s\n", s.c_str());
-    DCmotor_period_speed_max = atoi(s.c_str());
+    ROS_INFO("iDCmotor got param /DCmotor_period_speed_max: %d\n", DCmotor_period_speed_max);
   }
   else
   {
     ROS_ERROR("Failed to get param 'DCmotor_period_speed_max'\n");
   }
 
-  if (n.getParam("DCmotor_period_speed_0", s))
+  if (n.getParam("/DCmotor_period_speed_0", DCmotor_period_speed_0))
   {
-    ROS_INFO("iDCmotor got param: %s\n", s.c_str());
-    DCmotor_period_speed_0 = atoi(s.c_str());
+    ROS_INFO("iDCmotor got param /DCmotor_period_speed_0: %d\n", DCmotor_period_speed_0);
   }
   else
   {
     ROS_ERROR("Failed to get param 'DCmotor_period_speed_0'\n");
   }
 
-  if (n.getParam("DCmotor_period_speed_min", s))
+  if (n.getParam("/DCmotor_period_speed_min", DCmotor_period_speed_min))
   {
-    ROS_INFO("iDCmotor got param: %s\n", s.c_str());
-    DCmotor_period_speed_min = atoi(s.c_str());
+    ROS_INFO("iDCmotor got param /DCmotor_period_speed_min: %d\n", DCmotor_period_speed_min);
   }
   else
   {
     ROS_ERROR("Failed to get param 'DCmotor_period_speed_min'\n");
   }
 
-  if (n.getParam("DCmotor_speed_max", s))
+  if (n.getParam("/DCmotor_speed_max", DCmotor_speed_max))
   {
-    ROS_INFO("iDCmotor got param: %s\n", s.c_str());
-    DCmotor_speed_max = atoi(s.c_str());
+    ROS_INFO("iDCmotor got param /DCmotor_speed_max: %d\n", DCmotor_speed_max);
   }
   else
   {
     ROS_ERROR("Failed to get param 'DCmotor_speed_max'\n");
   }
 
-  if (n.getParam("DCmotor_speed_min", s))
+  if (n.getParam("/DCmotor_speed_min", DCmotor_speed_min))
   {
-    ROS_INFO("iDCmotor got param: %s\n", s.c_str());
-    DCmotor_speed_min = atoi(s.c_str());
+    ROS_INFO("iDCmotor got param /DCmotor_speed_min: %d\n", DCmotor_speed_min);
   }
   else
   {

@@ -15,7 +15,6 @@ find_package(catkin REQUIRED COMPONENTS
    FILES
    Command.msg
    RSRMsg.msg
-   CalibMsg.msg
  )
 
 ## Generate services in the 'srv' folder
@@ -57,10 +56,10 @@ include_directories(include ${catkin_INCLUDE_DIRS})
 add_executable(iDCmotor src/DCmotor.cpp)
 target_link_libraries(iDCmotor ${catkin_LIBRARIES})
 target_link_libraries(iDCmotor pwm)
-add_dependencies(iDCmotor rc_car_gen_cpp)
+add_dependencies(iDCmotor rc_car_generate_messages_cpp)
 
 add_executable(iServomotor src/servomotor.cpp)
 target_link_libraries(iServomotor ${catkin_LIBRARIES})
 target_link_libraries(iServomotor pwm)
-add_dependencies(iServomotor rc_car_gen_cpp)
+add_dependencies(iServomotor rc_car_generate_messages_cpp)
 
