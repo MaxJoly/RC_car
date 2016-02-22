@@ -1,7 +1,6 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(rc_car)
 
-
 find_package(catkin REQUIRED COMPONENTS
   roscpp
   rospy
@@ -9,12 +8,14 @@ find_package(catkin REQUIRED COMPONENTS
   message_generation
 )
 
+find_package(Boost REQUIRED COMPONENTS bind)
 
 ## Generate messages in the 'msg' folder
  add_message_files(
    FILES
    Command.msg
    RSRMsg.msg
+   SwitchMsg.msg
  )
 
 ## Generate services in the 'srv' folder
@@ -44,14 +45,13 @@ catkin_package(
 
 )
 
-
 include_directories(
+  include
   ${catkin_INCLUDE_DIRS}
+  ${Boost_INCLUDE_DIRS}
 )
 
 add_library(pwm src/pwm.cpp)
-
-include_directories(include ${catkin_INCLUDE_DIRS})
 
 add_executable(iDCmotor src/DCmotor.cpp)
 target_link_libraries(iDCmotor ${catkin_LIBRARIES})
@@ -63,3 +63,8 @@ target_link_libraries(iServomotor ${catkin_LIBRARIES})
 target_link_libraries(iServomotor pwm)
 add_dependencies(iServomotor rc_car_generate_messages_cpp)
 
+add_executable(iSwitchMode src/switchMode.cpp)
+target_link_libraries(iSwitchMode ${catkin_LIBRARIES})
+target_link_libraries(iSwitchMode ${Boost_LIBRARIES})
+target_link_libraries(iSwitchMode pwm)
+add_dependencies(iSwitchMode rc_car_generate_messages_cpp)
